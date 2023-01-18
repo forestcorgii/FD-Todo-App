@@ -484,6 +484,10 @@
             "type": "integer",
             "format": "int32"
           },
+          "colour": {
+            "type": "string",
+            "nullable": true
+          },
           "priority": {
             "$ref": "#/components/schemas/PriorityLevel"
           },
@@ -578,6 +582,10 @@
             "format": "int32"
           },
           "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "colour": {
             "type": "string",
             "nullable": true
           },
