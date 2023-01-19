@@ -528,6 +528,12 @@
             "items": {
               "$ref": "#/components/schemas/TodoListDto"
             }
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TodoTagDto"
+            }
           }
         }
       },
@@ -599,6 +605,26 @@
           "note": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "TodoTagDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TodoItemDto"
+            }
           }
         }
       },
