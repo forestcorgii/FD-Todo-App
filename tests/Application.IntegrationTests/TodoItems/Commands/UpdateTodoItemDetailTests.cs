@@ -44,6 +44,7 @@ public class UpdateTodoItemDetailTests : BaseTestFixture
             ListId = listId,
             Note = "A1",
             Colour = Colour.White,
+            Tags = new List<string>(new string[] { "Aaaaa","aaaasas" }),
             Priority = PriorityLevel.High
         };
 
@@ -55,6 +56,7 @@ public class UpdateTodoItemDetailTests : BaseTestFixture
         item!.ListId.Should().Be(command.ListId);
         item.Note.Should().Be(command.Note);
         item.Priority.Should().Be(command.Priority);
+        //item.Tags.Should().HaveCountGreaterThanOrEqualTo(1);
         item.LastModifiedBy.Should().NotBeNull();
         item.LastModifiedBy.Should().Be(userId);
         item.LastModified.Should().NotBeNull();
