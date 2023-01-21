@@ -494,6 +494,12 @@
           "note": {
             "type": "string",
             "nullable": true
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },
@@ -532,7 +538,7 @@
           "tags": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/TodoTagDto"
+              "type": "string"
             }
           }
         }
@@ -602,29 +608,15 @@
             "type": "integer",
             "format": "int32"
           },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "note": {
             "type": "string",
             "nullable": true
-          }
-        }
-      },
-      "TodoTagDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "name": {
-            "type": "string",
-            "nullable": true
-          },
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TodoItemDto"
-            }
           }
         }
       },

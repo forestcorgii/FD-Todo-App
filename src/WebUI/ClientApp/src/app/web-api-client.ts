@@ -855,6 +855,7 @@ export class UpdateTodoItemDetailCommand implements IUpdateTodoItemDetailCommand
     colour?: string | undefined;
     priority?: PriorityLevel;
     note?: string | undefined;
+    tags?: string[];
 
     constructor(data?: IUpdateTodoItemDetailCommand) {
         if (data) {
@@ -872,6 +873,11 @@ export class UpdateTodoItemDetailCommand implements IUpdateTodoItemDetailCommand
             this.colour = _data["colour"];
             this.priority = _data["priority"];
             this.note = _data["note"];
+            if (Array.isArray(_data["tags"])) {
+                this.tags = [] as any;
+                for (let item of _data["tags"])
+                    this.tags!.push(item);
+            }
         }
     }
 
@@ -889,6 +895,11 @@ export class UpdateTodoItemDetailCommand implements IUpdateTodoItemDetailCommand
         data["colour"] = this.colour;
         data["priority"] = this.priority;
         data["note"] = this.note;
+        if (Array.isArray(this.tags)) {
+            data["tags"] = [];
+            for (let item of this.tags)
+                data["tags"].push(item);
+        }
         return data;
     }
 }
@@ -899,6 +910,7 @@ export interface IUpdateTodoItemDetailCommand {
     colour?: string | undefined;
     priority?: PriorityLevel;
     note?: string | undefined;
+    tags?: string[];
 }
 
 export enum PriorityLevel {
@@ -911,7 +923,7 @@ export enum PriorityLevel {
 export class TodosVm implements ITodosVm {
     priorityLevels?: PriorityLevelDto[];
     lists?: TodoListDto[];
-    tags?: TodoTagDto[];
+    tags?: string[];
 
     constructor(data?: ITodosVm) {
         if (data) {
@@ -937,7 +949,7 @@ export class TodosVm implements ITodosVm {
             if (Array.isArray(_data["tags"])) {
                 this.tags = [] as any;
                 for (let item of _data["tags"])
-                    this.tags!.push(TodoTagDto.fromJS(item));
+                    this.tags!.push(item);
             }
         }
     }
@@ -964,7 +976,7 @@ export class TodosVm implements ITodosVm {
         if (Array.isArray(this.tags)) {
             data["tags"] = [];
             for (let item of this.tags)
-                data["tags"].push(item.toJSON());
+                data["tags"].push(item);
         }
         return data;
     }
@@ -973,7 +985,7 @@ export class TodosVm implements ITodosVm {
 export interface ITodosVm {
     priorityLevels?: PriorityLevelDto[];
     lists?: TodoListDto[];
-    tags?: TodoTagDto[];
+    tags?: string[];
 }
 
 export class PriorityLevelDto implements IPriorityLevelDto {
@@ -1079,6 +1091,7 @@ export class TodoItemDto implements ITodoItemDto {
     colour?: string | undefined;
     done?: boolean;
     priority?: number;
+    tags?: string[];
     note?: string | undefined;
 
     constructor(data?: ITodoItemDto) {
@@ -1098,6 +1111,11 @@ export class TodoItemDto implements ITodoItemDto {
             this.colour = _data["colour"];
             this.done = _data["done"];
             this.priority = _data["priority"];
+            if (Array.isArray(_data["tags"])) {
+                this.tags = [] as any;
+                for (let item of _data["tags"])
+                    this.tags!.push(item);
+            }
             this.note = _data["note"];
         }
     }
@@ -1117,6 +1135,11 @@ export class TodoItemDto implements ITodoItemDto {
         data["colour"] = this.colour;
         data["done"] = this.done;
         data["priority"] = this.priority;
+        if (Array.isArray(this.tags)) {
+            data["tags"] = [];
+            for (let item of this.tags)
+                data["tags"].push(item);
+        }
         data["note"] = this.note;
         return data;
     }
@@ -1129,59 +1152,8 @@ export interface ITodoItemDto {
     colour?: string | undefined;
     done?: boolean;
     priority?: number;
+    tags?: string[];
     note?: string | undefined;
-}
-
-export class TodoTagDto implements ITodoTagDto {
-    id?: number;
-    name?: string | undefined;
-    items?: TodoItemDto[];
-
-    constructor(data?: ITodoTagDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.name = _data["name"];
-            if (Array.isArray(_data["items"])) {
-                this.items = [] as any;
-                for (let item of _data["items"])
-                    this.items!.push(TodoItemDto.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): TodoTagDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new TodoTagDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["name"] = this.name;
-        if (Array.isArray(this.items)) {
-            data["items"] = [];
-            for (let item of this.items)
-                data["items"].push(item.toJSON());
-        }
-        return data;
-    }
-}
-
-export interface ITodoTagDto {
-    id?: number;
-    name?: string | undefined;
-    items?: TodoItemDto[];
 }
 
 export class CreateTodoListCommand implements ICreateTodoListCommand {

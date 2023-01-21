@@ -19,6 +19,7 @@ export class TodoComponent implements OnInit {
   deleteCountDown = 0;
   deleteCountDownInterval: any;
   lists: TodoListDto[];
+  tags: string[];
   priorityLevels: PriorityLevelDto[];
   selectedList: TodoListDto;
   selectedItem: TodoItemDto;
@@ -33,6 +34,8 @@ export class TodoComponent implements OnInit {
     listId: [null],
     priority: [''],
     colour: '#FFFFFF',
+    tag: '',
+    tags: [''],
     note: ['']
   });
 
@@ -48,6 +51,7 @@ export class TodoComponent implements OnInit {
     this.listsClient.get().subscribe(
       result => {
         this.lists = result.lists;
+        this.tags = result.tags;
         this.priorityLevels = result.priorityLevels;
         if (this.lists.length) {
           this.selectedList = this.lists[0];
@@ -137,18 +141,33 @@ export class TodoComponent implements OnInit {
   }
 
   // Items
+  showDropdown = false;
+
+
+  includeTag() {
+    const tags = [...this.itemDetailsFormGroup.value.tags, this.itemDetailsFormGroup.value.tag]
+    this.itemDetailsFormGroup.patchValue({ ...this.itemDetailsFormGroup.value, tags: tags, tag: '' });
+    
+  }
+
+  onOptionSelected(option: string) {
+    //this.itemDetailsFormGroup.s
+  }
+
   showItemDetailsModal(template: TemplateRef<any>, item: TodoItemDto): void {
     this.selectedItem = item;
     this.itemDetailsFormGroup.patchValue(this.selectedItem);
 
     this.itemDetailsModalRef = this.modalService.show(template);
     this.itemDetailsModalRef.onHidden.subscribe(() => {
-        this.stopDeleteCountDown();
+      this.stopDeleteCountDown();
     });
   }
 
   updateItemDetails(): void {
     const item = new UpdateTodoItemDetailCommand(this.itemDetailsFormGroup.value);
+    console.log(this.itemDetailsFormGroup.value);
+    console.log(this.itemDetailsFormGroup.valid);
     this.itemsClient.updateItemDetails(this.selectedItem.id, item).subscribe(
       () => {
         if (this.selectedItem.listId !== item.listId) {
