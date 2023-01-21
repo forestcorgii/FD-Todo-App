@@ -17,7 +17,11 @@ public class Colour : ValueObject
 
     public static Colour From(string code)
     {
-        var colour = new Colour { Code = code.ToUpper() };
+        Colour colour;
+        if (code is null)
+            colour = White;
+        else
+            colour = new Colour { Code = code.ToUpper() };
 
         if (!SupportedColours.Contains(colour))
         {
