@@ -89,9 +89,9 @@ public class ApplicationDbContextInitialiser
         }
         if (!_context.TodoTags.Any())
         {
-            _context.TodoTags.Add(new TodoTag { Name = "Workout" });
-            _context.TodoTags.Add(new TodoTag { Name = "Date" });
-            _context.TodoTags.Add(new TodoTag { Name = "Purchases" });
+            _context.TodoTags.Add(new TodoTag("Workout"));
+            _context.TodoTags.Add(new TodoTag("Date"));
+            _context.TodoTags.Add(new TodoTag("Purchases"));
         }
     }
 }
