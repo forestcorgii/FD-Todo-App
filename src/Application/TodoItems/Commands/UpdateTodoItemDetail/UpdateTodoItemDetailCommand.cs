@@ -49,7 +49,7 @@ public class UpdateTodoItemDetailCommandHandler : IRequestHandler<UpdateTodoItem
 
         entity.Tags = await MapToTagEntities(request.Tags, cancellationToken);
 
-        RemoveUnusedTodoTagEntities(cancellationToken);
+       await RemoveUnusedTodoTagEntities(cancellationToken);
 
 
         await _context.SaveChangesAsync(cancellationToken);
@@ -75,7 +75,7 @@ public class UpdateTodoItemDetailCommandHandler : IRequestHandler<UpdateTodoItem
         return tags;
     }
 
-    private async void RemoveUnusedTodoTagEntities(CancellationToken cancellationToken)
+    private async Task RemoveUnusedTodoTagEntities(CancellationToken cancellationToken)
     {
         // Check for unused tags to be deleted
         List<TodoTag> tags = await _context.TodoTags.Include(t=>t.Items).ToListAsync(cancellationToken);
