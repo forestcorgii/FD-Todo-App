@@ -87,5 +87,11 @@ public class ApplicationDbContextInitialiser
 
             await _context.SaveChangesAsync();
         }
+        if (!_context.TodoTags.Any())
+        {
+            _context.TodoTags.Add(new TodoTag("Workout"));
+            _context.TodoTags.Add(new TodoTag("Date"));
+            _context.TodoTags.Add(new TodoTag("Purchases"));
+        }
     }
 }
