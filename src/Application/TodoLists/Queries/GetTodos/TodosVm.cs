@@ -8,5 +8,5 @@ public class TodosVm
 
     public IList<TodoListDto> Lists { get; set; } = new List<TodoListDto>();
 
-    public IList<string> Tags { get; set; } = new List<string>();
+    public IList<TodoTagDto> Tags { get; set; } = new List<TodoTagDto>();
 }
