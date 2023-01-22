@@ -15,9 +15,9 @@
         </div>
         <div class="d-flex flex-wrap align-items-start justify-content-start flex-row">
           <div class="p-2" *ngFor="let tag of tags">
-            <span class="badge text-bg-light">
-              {{ tag }}
-            </span>
+            <button class="btn btn-light btn-sm"[ngClass]="{ 'active': selectedTag == tag }" (click)="selectedTag = tag; showTagItems=true;">
+              {{ tag.name }} <span class="badge text-bg-secondary">{{ tag.items.length }}</span>
+            </button>
           </div>
         </div>
       </div>
@@ -32,7 +32,7 @@
         </div>
         <ul class="list-group">
           <li *ngFor="let list of lists; index as i" class="list-group-item"
-              [ngClass]="{ 'active': selectedList == list }" (click)="selectedList = list">
+              [ngClass]="{ 'active': selectedList == list }" (click)="selectedList = list; showTagItems=false;">
             <div class="clearfix">
               <div class="float-start">
                 {{ list.title }}
@@ -47,7 +47,7 @@
     </div>
 
 
-    <div class="col-sm-8" *ngIf="selectedList">
+    <div class="col-sm-8" *ngIf="!showTagItems">
       <div class="clearfix">
         <h2 class="float-start">{{ selectedList.title }}</h2>
         <button id="listOptions" class="btn btn-default float-end" title="List Options..."
@@ -65,8 +65,8 @@
               <input id="{{ 'itemTitle' + i }}" *ngIf="item == selectedItem" type="text"
                      class="form-control item-input-control" [(ngModel)]="item.title" (keyup.enter)="updateItem(item, true)"
                      (blur)="updateItem(item)" autofocus="autofocus" />
-              <div class="todo-item-title" *ngIf="item != selectedItem" [ngClass]="{ 'done-todo': item.done }"
-                   (click)="editItem(item, 'itemTitle' + i)" class="form-control item-input-control">
+              <div class="todo-item-title form-control item-input-control" *ngIf="item != selectedItem" [ngClass]="{ 'done-todo': item.done }"
+                   (click)="editItem(item, 'itemTitle' + i)">
                 <span>{{ item.title }}</span>
               </div>
             </div>
@@ -83,6 +83,41 @@
         </li>
       </ul>
     </div>
+    <div class="col-sm-8" *ngIf="showTagItems">
+      <div class="clearfix">
+        <h2 class="float-start">{{ selectedTag.name }}</h2>
+        <!--<button id="listOptions" class="btn btn-default float-end" title="Tag Options..."
+              (click)="showListOptionsModal(listOptionsModalTemplate)">
+              <i class="bi bi-three-dots-vertical"></i>
+            </button>-->
+      </div>
+      <ul id="todo-items" class="list-group mb-2">
+        <li class="list-group-item" *ngFor="let item of selectedTag.items; index as i" [style.backgroundColor]="item.colour">
+          <div class="d-flex">
+            <div class="todo-item-checkbox">
+              <input type="checkbox" [(ngModel)]="item.done" (change)="updateItem(item)" />
+            </div>
+            <div class="flex-fill">
+              <input id="{{ 'itemTitle' + i }}" *ngIf="item == selectedItem" type="text"
+                     class="form-control item-input-control" [(ngModel)]="item.title" (keyup.enter)="updateItem(item, true)"
+                     (blur)="updateItem(item)" autofocus="autofocus" />
+              <div class="todo-item-title form-control item-input-control" *ngIf="item != selectedItem" [ngClass]="{ 'done-todo': item.done }"
+                   (click)="editItem(item, 'itemTitle' + i)">
+                <span>{{ item.title }}</span>
+              </div>
+            </div>
+            <div class="todo-item-commands">
+              <button *ngIf="item.id != 0" (click)="showItemDetailsModal(itemDetailsModalTemplate, item)"
+                      class="btn btn-default btn-xs" role="button">
+                <i class="bi bi-three-dots-vertical"></i>
+              </button>
+            </div>
+          </div>
+        </li>
+        
+      </ul>
+    </div>
+
   </div>
 
   <div *ngIf="debug">
@@ -143,19 +178,20 @@
         <div class="form-group">
           <label for="note">Note</label>
           <textarea id="note" class="form-control" rows="3" formControlName="note"></textarea>
-          <input type="text" id="tag" name="tag" class="form-control" rows="3" formControlName="tag" (keydown.enter)="includeTag()">
 
+          <label for="tag">Tags:</label>
+          <input type="text" id="tag" name="tag" class="form-control" list="tag-options" formControlName="tag" (keyup.enter)="includeTag()" />
+          <datalist id="tag-options">
+            <option *ngFor="let tag of tags" [value]="tag.name">
+          </datalist>
           <div class="d-flex flex-wrap align-items-start justify-content-start flex-row">
-            <div class="p-2" *ngFor="let tag of itemDetailsFormGroup.get('tags').value">
-              <span class="badge text-bg-light">
+            <div class="p-2" *ngFor="let tag of itemDetailsFormGroup.get('tags').value; index as i">
+              <a class="btn btn-light" (click)="removeTag(i)">
                 {{ tag }}
                 <i class="bi bi-x"></i>
-              </span>
+              </a>
             </div>
           </div>
-          <!--<select *ngIf="showDropdown">
-            <option *ngFor="let tag of tags" [value]="tag">{{ tag }}</option>
-          </select>-->
         </div>
         <div class="form-group m-1">
           <input class="m-1" type="color" id="color-picker" formControlName="colour" list="colors">

@@ -580,6 +580,79 @@ export class TodoListsClient implements ITodoListsClient {
     }
 }
 
+export interface ITodoTagsClient {
+    get(): Observable<TodoTagDto2[]>;
+}
+
+@Injectable({
+    providedIn: 'root'
+})
+export class TodoTagsClient implements ITodoTagsClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    get(): Observable<TodoTagDto2[]> {
+        let url_ = this.baseUrl + "/api/TodoTags";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGet(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<TodoTagDto2[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<TodoTagDto2[]>;
+        }));
+    }
+
+    protected processGet(response: HttpResponseBase): Observable<TodoTagDto2[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(TodoTagDto2.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
 export interface IWeatherForecastClient {
     get(): Observable<WeatherForecast[]>;
 }
@@ -923,7 +996,7 @@ export enum PriorityLevel {
 export class TodosVm implements ITodosVm {
     priorityLevels?: PriorityLevelDto[];
     lists?: TodoListDto[];
-    tags?: string[];
+    tags?: TodoTagDto[];
 
     constructor(data?: ITodosVm) {
         if (data) {
@@ -949,7 +1022,7 @@ export class TodosVm implements ITodosVm {
             if (Array.isArray(_data["tags"])) {
                 this.tags = [] as any;
                 for (let item of _data["tags"])
-                    this.tags!.push(item);
+                    this.tags!.push(TodoTagDto.fromJS(item));
             }
         }
     }
@@ -976,7 +1049,7 @@ export class TodosVm implements ITodosVm {
         if (Array.isArray(this.tags)) {
             data["tags"] = [];
             for (let item of this.tags)
-                data["tags"].push(item);
+                data["tags"].push(item.toJSON());
         }
         return data;
     }
@@ -985,7 +1058,7 @@ export class TodosVm implements ITodosVm {
 export interface ITodosVm {
     priorityLevels?: PriorityLevelDto[];
     lists?: TodoListDto[];
-    tags?: string[];
+    tags?: TodoTagDto[];
 }
 
 export class PriorityLevelDto implements IPriorityLevelDto {
@@ -1156,6 +1229,58 @@ export interface ITodoItemDto {
     note?: string | undefined;
 }
 
+export class TodoTagDto implements ITodoTagDto {
+    id?: number;
+    name?: string | undefined;
+    items?: TodoItemDto[];
+
+    constructor(data?: ITodoTagDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(TodoItemDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): TodoTagDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new TodoTagDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface ITodoTagDto {
+    id?: number;
+    name?: string | undefined;
+    items?: TodoItemDto[];
+}
+
 export class CreateTodoListCommand implements ICreateTodoListCommand {
     title?: string | undefined;
 
@@ -1230,6 +1355,58 @@ export class UpdateTodoListCommand implements IUpdateTodoListCommand {
 export interface IUpdateTodoListCommand {
     id?: number;
     title?: string | undefined;
+}
+
+export class TodoTagDto2 implements ITodoTagDto2 {
+    id?: number;
+    name?: string | undefined;
+    items?: TodoItemDto[];
+
+    constructor(data?: ITodoTagDto2) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(TodoItemDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): TodoTagDto2 {
+        data = typeof data === 'object' ? data : {};
+        let result = new TodoTagDto2();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface ITodoTagDto2 {
+    id?: number;
+    name?: string | undefined;
+    items?: TodoItemDto[];
 }
 
 export class WeatherForecast implements IWeatherForecast {

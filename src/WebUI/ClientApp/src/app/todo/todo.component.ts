@@ -5,7 +5,7 @@ import {
   TodoListsClient, TodoItemsClient,
   TodoListDto, TodoItemDto, PriorityLevelDto,
   CreateTodoListCommand, UpdateTodoListCommand,
-  CreateTodoItemCommand, UpdateTodoItemDetailCommand
+  CreateTodoItemCommand, UpdateTodoItemDetailCommand, TodoTagDto, TodoTagsClient
 } from '../web-api-client';
 
 @Component({
@@ -19,8 +19,9 @@ export class TodoComponent implements OnInit {
   deleteCountDown = 0;
   deleteCountDownInterval: any;
   lists: TodoListDto[];
-  tags: string[];
+  tags: TodoTagDto[];
   priorityLevels: PriorityLevelDto[];
+  selectedTag: TodoTagDto;
   selectedList: TodoListDto;
   selectedItem: TodoItemDto;
   newListEditor: any = {};
@@ -43,6 +44,7 @@ export class TodoComponent implements OnInit {
   constructor(
     private listsClient: TodoListsClient,
     private itemsClient: TodoItemsClient,
+    private tagsClient: TodoTagsClient,
     private modalService: BsModalService,
     private fb: FormBuilder
   ) { }
@@ -60,6 +62,10 @@ export class TodoComponent implements OnInit {
       error => console.error(error)
     );
   }
+
+  showTagItems = false;
+  // Tags
+  showTagOptions = false;
 
   // Lists
   remainingItems(list: TodoListDto): number {
@@ -141,17 +147,17 @@ export class TodoComponent implements OnInit {
   }
 
   // Items
-  showDropdown = false;
-
-
   includeTag() {
-    const tags = [...this.itemDetailsFormGroup.value.tags, this.itemDetailsFormGroup.value.tag]
-    this.itemDetailsFormGroup.patchValue({ ...this.itemDetailsFormGroup.value, tags: tags, tag: '' });
-    
+    if (!this.itemDetailsFormGroup.value.tags.includes(this.itemDetailsFormGroup.value.tag)) {
+      const tags = [...this.itemDetailsFormGroup.value.tags, this.itemDetailsFormGroup.value.tag]
+      this.itemDetailsFormGroup.patchValue({ ...this.itemDetailsFormGroup.value, tags: tags, tag: '' });
+    }
   }
 
-  onOptionSelected(option: string) {
-    //this.itemDetailsFormGroup.s
+  removeTag(selectedTagIndex: number) {
+    const tags = this.itemDetailsFormGroup.value.tags;
+    tags.splice(selectedTagIndex, 1);
+    this.itemDetailsFormGroup.patchValue({ ...this.itemDetailsFormGroup.value, tags: tags });
   }
 
   showItemDetailsModal(template: TemplateRef<any>, item: TodoItemDto): void {
@@ -166,8 +172,6 @@ export class TodoComponent implements OnInit {
 
   updateItemDetails(): void {
     const item = new UpdateTodoItemDetailCommand(this.itemDetailsFormGroup.value);
-    console.log(this.itemDetailsFormGroup.value);
-    console.log(this.itemDetailsFormGroup.valid);
     this.itemsClient.updateItemDetails(this.selectedItem.id, item).subscribe(
       () => {
         if (this.selectedItem.listId !== item.listId) {
@@ -186,9 +190,18 @@ export class TodoComponent implements OnInit {
         this.selectedItem.note = item.note;
         this.itemDetailsModalRef.hide();
         this.itemDetailsFormGroup.reset();
+
+
+        this.tagsClient.get().subscribe((result) => {
+          console.log(result);
+          this.tags = result;
+        },
+          error => console.error(error)
+        );
       },
       error => console.error(error)
     );
+
   }
 
   addItem() {
