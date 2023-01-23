@@ -53,12 +53,17 @@ export class TodoComponent implements OnInit {
     this.listsClient.get().subscribe(
       result => {
         this.lists = result.lists;
-        this.tags = result.tags;
         this.priorityLevels = result.priorityLevels;
         if (this.lists.length) {
           this.selectedList = this.lists[0];
         }
       },
+      error => console.error(error)
+    );
+
+    this.tagsClient.get().subscribe((result) => {
+      this.tags = result;
+    },
       error => console.error(error)
     );
   }
@@ -148,9 +153,20 @@ export class TodoComponent implements OnInit {
 
   // Items
   includeTag() {
-    if (!this.itemDetailsFormGroup.value.tags.includes(this.itemDetailsFormGroup.value.tag)) {
-      const tags = [...this.itemDetailsFormGroup.value.tags, this.itemDetailsFormGroup.value.tag]
-      this.itemDetailsFormGroup.patchValue({ ...this.itemDetailsFormGroup.value, tags: tags, tag: '' });
+    const _tags = this.itemDetailsFormGroup.value.tags;
+    const _tag = this.itemDetailsFormGroup.value.tag;
+    if (_tags && !_tags.includes(_tag)) {
+      this.itemDetailsFormGroup.patchValue({
+        ...this.itemDetailsFormGroup.value,
+        tags: [..._tags, _tag],
+        tag: ''
+      });
+    } else {
+      this.itemDetailsFormGroup.patchValue({
+        ...this.itemDetailsFormGroup.value,
+        tags: [_tag],
+        tag: ''
+      });
     }
   }
 
@@ -193,7 +209,6 @@ export class TodoComponent implements OnInit {
 
 
         this.tagsClient.get().subscribe((result) => {
-          console.log(result);
           this.tags = result;
         },
           error => console.error(error)
