@@ -378,7 +378,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/TodoTagDto2"
+                    "$ref": "#/components/schemas/TodoTagDto"
                   }
                 }
               }
@@ -557,12 +557,6 @@
             "items": {
               "$ref": "#/components/schemas/TodoListDto"
             }
-          },
-          "tags": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TodoTagDto"
-            }
           }
         }
       },
@@ -595,6 +589,9 @@
           "colour": {
             "type": "string",
             "nullable": true
+          },
+          "deleted": {
+            "type": "boolean"
           },
           "items": {
             "type": "array",
@@ -640,26 +637,9 @@
           "note": {
             "type": "string",
             "nullable": true
-          }
-        }
-      },
-      "TodoTagDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
           },
-          "name": {
-            "type": "string",
-            "nullable": true
-          },
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TodoItemDto"
-            }
+          "deleted": {
+            "type": "boolean"
           }
         }
       },
@@ -687,7 +667,7 @@
           }
         }
       },
-      "TodoTagDto2": {
+      "TodoTagDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
