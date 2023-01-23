@@ -11,9 +11,9 @@ using Todo_App.Application.Common.Interfaces;
 
 namespace Todo_App.Application.TodoTags.Queries.GetTodoTags;
 
-public  record GetTodoTagsQuery : IRequest<List<TodoTagDto>>;
+public record GetTodoTagsQuery : IRequest<List<TodoTagDto>>;
 
-public class GetTodoTagsQueryHandler: IRequestHandler<GetTodoTagsQuery,List<TodoTagDto>>
+public class GetTodoTagsQueryHandler : IRequestHandler<GetTodoTagsQuery, List<TodoTagDto>>
 {
 
     private readonly IApplicationDbContext _context;
@@ -31,6 +31,12 @@ public class GetTodoTagsQueryHandler: IRequestHandler<GetTodoTagsQuery,List<Todo
         return await _context.TodoTags
                 .AsNoTracking()
                 .ProjectTo<TodoTagDto>(_mapper.ConfigurationProvider)
+                .Select(t => new TodoTagDto
+                {
+                    Id = t.Id,
+                    Name = t.Name,
+                    Items = t.Items.Where(x => !x.Deleted).ToList()
+                }).Where(t => t.Items.Any(i => !i.Deleted))
                 .OrderByDescending(t => t.Items.Count)
                 .ToListAsync(cancellationToken);
     }
